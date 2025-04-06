@@ -1,0 +1,84 @@
+#!/bin/bash
+
+# Remove all the previous output files
+rm *.txt
+
+n=$1
+s=$2
+
+echo $n
+
+if [ -f hash_app.py ]; then
+   echo "It is a Python code"
+   python3 hash_app.py $n $s < inputs1.lst
+elif [ -f *.c ]; then
+   echo "It is C code"
+   gcc -o hash_app hash_app.c 
+   ./hash_app $n $s < inputs1.lst
+elif [ -f *.cpp ]; then
+   echo "It is a C++ code"
+   g++ -o hash_app hash_app.cpp 
+   ./hash_app $n $s < inputs1.lst
+elif [ -f *.java ]; then
+   echo "It is a Java code"
+   javac hash_app.java
+   java hash_app $n $s < inputs1.lst
+else
+   echo "Unknown code"
+fi
+
+# Check for the number of files
+fcnt=$(ls -1q *.txt | wc -l)
+
+if [[ "$s" -eq 0 && "$fcnt" -eq "$n" ]]; then
+    echo "Minimum file count - PASSED"
+elif [[ "$s" -gt 0 && "$fcnt" -ge "$n" ]]; then
+    echo "Minimum file count - PASSED"
+else
+    echo "Minimum file count - Not passed"
+fi
+
+# Check for the overflows
+if [[ "$s" -gt 0 ]]; then
+   # Enable nullglob so that glob patterns return empty if no files match
+   shopt -s nullglob
+
+   for ((x=1; x<=n; x++)); do
+       # Check if x.txt exists
+       if [[ ! -f "$x.txt" ]]; then
+           echo "Bucket number $x does not exist"
+           continue
+       fi
+
+       # Read the comma-delimited words from x.txt
+       words=$(cat "$x.txt")
+
+       # Flag to track if all words are found in the relevant overflow files
+       all_found=true
+
+       # Loop through each word in the comma-delimited list
+       IFS=',' read -r -a word_array <<< "$words"
+       for word in "${word_array[@]}"; do
+           # Trim spaces from the word (if any)
+           word=$(echo "$word" | xargs)
+
+           # Check if any file matches the pattern for overflow-$x-*.txt or overflow_$x_*.txt
+           overflow_files=(overflow-$x-*.txt overflow_$x_*.txt)
+
+           if [[ ${#overflow_files[@]} -gt 0 ]]; then
+               # If matching files are found, search for the word in them
+               if ! grep -q "$word" "${overflow_files[@]}"; then
+                   echo "Word '$word' from bucket $x.txt not found in overflow-$x-*.txt or overflow_$x_*.txt"
+                   all_found=false
+               fi
+           else
+               echo "No matching overflow files for bucket $x"
+               all_found=false
+           fi
+       done
+
+       if [[ "$all_found" == true ]]; then
+           echo "All words in bucket $x.txt are contained in the overflow files - PASSED"
+       fi
+   done
+fi
