@@ -81,4 +81,25 @@ if [[ "$s" -gt 0 ]]; then
            echo "All words in bucket $x.txt are contained in the overflow files - PASSED"
        fi
    done
+
+   # Check for the file size
+   all_small=true
+
+    for file in *.txt; do
+        # Check if any .txt files exist
+        [ -e "$file" ] || continue
+
+        size=$(stat -f%z "$file")  # macOS-compatible (BSD stat)
+        
+        if [ "$size" -ge "$s" ]; then
+            echo "File '$file' is $size bytes, which is not less than $s."
+            all_small=false
+        fi
+    done
+
+    if $all_small; then
+        echo "All txt files are smaller than $s bytes. - PASSED"
+    else
+        echo "Some txt files are not smaller than $s bytes. - NOT PASSED"
+    fi
 fi
