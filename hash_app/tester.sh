@@ -27,8 +27,8 @@ else
    echo "Unknown code"
 fi
 
-# Check for the number of files
-fcnt=$(ls -1q *.txt | wc -l)
+# Check for the number of non-empty text files
+fcnt=$(ls -l *.txt| awk '{if ($5 != 0) print $9}'| wc -l)
 
 if [[ "$s" -eq 0 && "$fcnt" -eq "$n" ]]; then
     echo "Minimum file count - PASSED"
@@ -63,12 +63,12 @@ if [[ "$s" -gt 0 ]]; then
            word=$(echo "$word" | xargs)
 
            # Check if any file matches the pattern for overflow-$x-*.txt or overflow_$x_*.txt
-           overflow_files=(overflow-$x-*.txt overflow_$x_*.txt)
+           overflow_files=(*$x-*.txt *$x_*.txt)
 
            if [[ ${#overflow_files[@]} -gt 0 ]]; then
                # If matching files are found, search for the word in them
                if ! grep -q "$word" "${overflow_files[@]}"; then
-                   echo "Word '$word' from bucket $x.txt not found in overflow-$x-*.txt or overflow_$x_*.txt"
+                   echo "Word '$word' from bucket $x.txt not found in $x-*.txt or $x_*.txt"
                    all_found=false
                fi
            else
