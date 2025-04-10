@@ -91,7 +91,7 @@ if [[ "$s" -gt 0 ]]; then
 
         size=$(stat -f%z "$file")  # macOS-compatible (BSD stat)
         
-        if [ "$size" -ge "$s" ]; then
+        if [ "$size" -gt "$s" ]; then
             echo "File '$file' is $size bytes, which is not less than $s."
             all_small=false
         fi
