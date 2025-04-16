@@ -17,7 +17,7 @@ elif [ -f *.c ]; then
    $cmd $n $s < inputs1.lst
 elif [ -f *.cpp ]; then
    echo "It is a C++ code"
-   g++ -o hash_app hash_app.cpp
+   g++ --std=c++17 -o hash_app hash_app.cpp
    cmd='./hash_app' 
    $cmd $n $s < inputs1.lst
 elif [ -f *.java ]; then
