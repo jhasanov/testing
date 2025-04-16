@@ -1,28 +1,30 @@
 #!/bin/bash
 
-# Remove all the previous output files
-rm *.txt
+# Remove all the previous output files (if any)
+rm -f *.txt
 
 n=$1
 s=$2
 
-echo $n
-
 if [ -f hash_app.py ]; then
    echo "It is a Python code"
-   python3 hash_app.py $n $s < inputs1.lst
+   cmd='python3 hash_app.py'
+   $cmd $n $s < inputs1.lst
 elif [ -f *.c ]; then
    echo "It is C code"
    gcc -o hash_app hash_app.c 
-   ./hash_app $n $s < inputs1.lst
+   cmd='./hash_app'
+   $cmd $n $s < inputs1.lst
 elif [ -f *.cpp ]; then
    echo "It is a C++ code"
-   g++ -o hash_app hash_app.cpp 
-   ./hash_app $n $s < inputs1.lst
+   g++ -o hash_app hash_app.cpp
+   cmd='./hash_app' 
+   $cmd $n $s < inputs1.lst
 elif [ -f *.java ]; then
    echo "It is a Java code"
    javac hash_app.java
-   java hash_app $n $s < inputs1.lst
+   cmd='java hash_app'
+   $cmd $n $s < inputs1.lst
 else
    echo "Unknown code"
 fi
@@ -31,11 +33,11 @@ fi
 fcnt=$(ls -l *.txt| awk '{if ($5 != 0) print $9}'| wc -l)
 
 if [[ "$s" -eq 0 && "$fcnt" -eq "$n" ]]; then
-    echo "Minimum file count - PASSED"
+    echo "---- PASSED: Minimum file count."
 elif [[ "$s" -gt 0 && "$fcnt" -ge "$n" ]]; then
-    echo "Minimum file count - PASSED"
+    echo "---- PASSED: Minimum file count."
 else
-    echo "Minimum file count - Not passed"
+    echo "---- NOT PASSED: Minimum file count."
 fi
 
 # Check for the overflows
@@ -78,7 +80,7 @@ if [[ "$s" -gt 0 ]]; then
        done
 
        if [[ "$all_found" == true ]]; then
-           echo "All words in bucket $x.txt are contained in the overflow files - PASSED"
+           echo "---- PASSED: All words in bucket $x.txt are contained in the overflow files."
        fi
    done
 
@@ -98,8 +100,22 @@ if [[ "$s" -gt 0 ]]; then
     done
 
     if $all_small; then
-        echo "All txt files are smaller than $s bytes. - PASSED"
+        echo "---- PASSED: All txt files are smaller than $s bytes."
     else
-        echo "Some txt files are not smaller than $s bytes. - NOT PASSED"
+        echo "---- NOT PASSED: Some txt files are not smaller than $s bytes."
+    fi
+
+    # Remove all .txt files safely
+    rm -f *.txt
+
+    echo $cmd
+    # Run the command
+    $cmd 5 5 <<< "longerthanfivechars"
+
+    # Check if any .txt file was created
+    if ls *.txt 1> /dev/null 2>&1; then
+        echo "---- PASSED: Rejects longer scripts"
+    else
+        echo "---- NOT PASSED: Accepting longer scripts"
     fi
 fi
