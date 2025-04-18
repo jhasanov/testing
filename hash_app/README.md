@@ -3,6 +3,12 @@
 This is a testing application written as a Bash script that is intended to test a homework assignment from the **Database Systems** course.  
 It tests applications written in **Python**, **C**, **C++**, and **Java**.
 
+To run it, move the .sh and .lst files into the assignment folder and run it like:
+```bash
+$ ./tester.sh N S
+```
+N and S any positive, natural numbers within the byte range.
+
 ## Homework Description
 
 In this assignment, you need to develop an application (in any programming language) that implements a simple **file-based hash bucket system** using a **fast hashing algorithm**.  
